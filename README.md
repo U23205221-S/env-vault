@@ -21,7 +21,7 @@ Nadie comparte contraseñas. El servidor de Git nunca ve el texto plano.
 ## 🚀 Instalación
 
 ### Opción 1: Compilar desde el código fuente (Recomendado para Linux/macOS)
-Requiere tener [Go](https://golang.org/doc/install) instalado.
+Requiere tener [Go 1.23+](https://golang.org/doc/install) instalado.
 
 ```bash
 git clone https://github.com/U23205221-S/env-vault.git
@@ -35,6 +35,25 @@ sudo mv env-vault /usr/local/bin/
 make build
 sudo mv bin/env-vault /usr/local/bin/
 ```
+
+### Windows
+Requiere tener [Go 1.23+](https://golang.org/doc/install) instalado.
+
+**Instalar con Go:**
+```powershell
+go install github.com/U23205221-S/env-vault@latest
+```
+
+**Compilar desde el repo (Git Bash recomendado):**
+```powershell
+git clone https://github.com/U23205221-S/env-vault.git
+cd env-vault
+make build
+```
+
+**Notas Windows:**
+- Para `env-vault run --`, usá `env-vault run -- cmd /c dir` (u otro comando de `cmd`).
+- El hook `pre-commit` requiere Git for Windows (incluye `sh.exe`, que Git usa por defecto para hooks).
 
 ---
 
@@ -98,3 +117,8 @@ env-vault push
 - **Algoritmo:** X25519 (Curva Elíptica).
 - **Motor:** [filippo.io/age](https://github.com/FiloSottile/age) (Estándar moderno de encriptación asimétrica).
 - **Protección de fugas:** El hook `pre-commit` impide que los humanos cometan el error de hacer `git commit` de un archivo `.env` sin cifrar.
+
+---
+
+## 🧪 Platform Support
+Probado en Windows, macOS, Fedora y Arch Linux. Debería funcionar en cualquier distro moderna con Go 1.23+.
