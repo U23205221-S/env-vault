@@ -20,8 +20,31 @@ Nadie comparte contraseñas. El servidor de Git nunca ve el texto plano.
 
 ## 🚀 Instalación
 
-### Opción 1: Compilar desde el código fuente (Recomendado para Linux/macOS)
-Requiere tener [Go 1.23+](https://golang.org/doc/install) instalado.
+### Quick Install (Linux / macOS)
+
+```bash
+curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh
+```
+
+El script detecta tu OS/arquitectura, descarga el binario correspondiente desde [Releases](https://github.com/U23205221-S/env-vault/releases), verifica el SHA256 y lo instala en `/usr/local/bin` (o `~/.local/bin` si no tenés permisos de escritura en `/usr/local/bin`).
+
+Para instalar una versión específica:
+
+```bash
+curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh -s -- v0.2.0
+```
+
+### Windows
+
+Los binarios se publican en [Releases](https://github.com/U23205221-S/env-vault/releases) como `.zip`. Descargá el `.zip` para `windows-amd64` (o `windows-arm64`), extraé el `.exe` y agregalo a tu PATH.
+
+**Notas Windows:**
+- Para `env-vault run --`, usá `env-vault run -- cmd /c dir` (u otro comando de `cmd`).
+- El hook `pre-commit` requiere Git for Windows (incluye `sh.exe`, que Git usa por defecto para hooks).
+
+### Desde el código fuente (avanzado)
+
+Requiere [Go 1.24+](https://golang.org/doc/install).
 
 ```bash
 git clone https://github.com/U23205221-S/env-vault.git
@@ -30,30 +53,20 @@ go build -o env-vault main.go
 sudo mv env-vault /usr/local/bin/
 ```
 
-### Opción 2: Usar Make
+O usando Make:
+
 ```bash
 make build
 sudo mv bin/env-vault /usr/local/bin/
 ```
 
-### Windows
-Requiere tener [Go 1.23+](https://golang.org/doc/install) instalado.
+### Verificando descargas
 
-**Instalar con Go:**
-```powershell
-go install github.com/U23205221-S/env-vault@latest
+Cada release publica un `checksums.txt` con los SHA256 de todos los artefactos. El script de instalación lo verifica automáticamente. Si descargás el binario a mano, podés verificarlo con:
+
+```bash
+sha256sum -c checksums.txt
 ```
-
-**Compilar desde el repo (Git Bash recomendado):**
-```powershell
-git clone https://github.com/U23205221-S/env-vault.git
-cd env-vault
-make build
-```
-
-**Notas Windows:**
-- Para `env-vault run --`, usá `env-vault run -- cmd /c dir` (u otro comando de `cmd`).
-- El hook `pre-commit` requiere Git for Windows (incluye `sh.exe`, que Git usa por defecto para hooks).
 
 ---
 
