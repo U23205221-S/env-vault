@@ -24,3 +24,7 @@ env-vault-*
 # IDEA
 .vscode/
 .idea/
+# Local Pi runtime state
+.atl/
+.pi/
+openspec/
