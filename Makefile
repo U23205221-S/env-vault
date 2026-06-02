@@ -11,8 +11,10 @@ install:
 # Compila para todos los sistemas de tu equipo
 build-all:
 	GOOS=linux GOARCH=amd64 go build -o bin/env-vault-linux-amd64 main.go
+	GOOS=linux GOARCH=arm64 go build -o bin/env-vault-linux-arm64 main.go
+	GOOS=darwin GOARCH=amd64 go build -o bin/env-vault-mac-amd64 main.go
 	GOOS=darwin GOARCH=arm64 go build -o bin/env-vault-mac-arm64 main.go
-	GOOS=windows GOARCH=amd64 go build -o bin/env-vault-windows.exe main.go
+	GOOS=windows GOARCH=amd64 go build -o bin/env-vault-windows-amd64.exe main.go
 
 clean:
 	rm -rf bin/
