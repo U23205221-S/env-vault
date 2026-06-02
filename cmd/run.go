@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"filippo.io/age"
@@ -84,15 +85,30 @@ Ejemplo:
 			}
 		}
 
-		// 5. Preparar el comando a ejecutar
+		// 5. Preparar el comando a ejecutar.
+		//
+		// En Linux/macOS invocamos el binario directamente con sus argumentos
+		// (path lookup + execve). En Windows hacemos lo mismo pero, si la
+		// plataforma requiere un interprete de comandos para los builtins
+		// de la shell (por ejemplo `dir`, `type`, `copy`), envolvemos la
+		// llamada con `cmd /c` para que el usuario pueda usar builtins sin
+		// tener que escribirlos a mano.
 		commandName := args[0]
 		commandArgs := args[1:]
 
-		execCmd := exec.Command(commandName, commandArgs...)
-		
+		var execCmd *exec.Cmd
+		if runtime.GOOS == "windows" {
+			// `cmd /c <comando>` recibe todo el comando como un único
+			// string; pasamos commandName + argumentos como un solo
+			// argumento, que cmd.exe se encarga de parsear.
+			execCmd = exec.Command("cmd", append([]string{"/c", commandName}, commandArgs...)...)
+		} else {
+			execCmd = exec.Command(commandName, commandArgs...)
+		}
+
 		// Heredar las variables del sistema operativo + inyectar las nuestras
 		execCmd.Env = append(os.Environ(), envVars...)
-		
+
 		// Conectar la entrada/salida estándar para que parezca que el comando corre nativamente
 		execCmd.Stdout = os.Stdout
 		execCmd.Stderr = os.Stderr
