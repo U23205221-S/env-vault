@@ -1,128 +1,81 @@
 # 🔐 env-vault
 
-**Sincroniza archivos `.env` entre los miembros de tu equipo de forma 100 % cifrada usando Git. Sin servidores, sin compartir secretos por Slack y con criptografía de grado militar.**
+**Comparte archivos `.env` con tu equipo, cifrados, sin servidor central y sin pasar secretos por canales inseguros.**
 
 ---
 
-## 🤔 El problema
+## Instalación
 
-¿Cómo comparte tu equipo las variables de entorno locales (`.env`)?
+Un solo comando por plataforma. Sin dependencias, sin compiladores, sin Docker.
 
-- ❌ **Por Slack o WhatsApp:** quedan registradas para siempre en texto plano.
-- ❌ **Gestores de contraseñas (1Password, LastPass):** son lentos y obligan a copiar y pegar manualmente cada vez que hay un cambio.
-- ❌ **Servidores centralizados (Vault, AWS Secrets):** requieren infraestructura, mantenimiento y pagar licencias.
+| Plataforma | Comando |
+|---|---|
+| **Fedora, Arch, Ubuntu, Debian, macOS** | `curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh \| sh` |
+| **Windows (PowerShell)** | `irm https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.ps1 \| iex` |
 
-## 💡 La solución: GitOps + criptografía asimétrica
+Para una versión específica: agregá `v1.2.0` al final del comando en Linux/macOS, o usá `$env:ENV_VAULT_VERSION = "v1.2.0"` antes del comando en Windows.
 
-`env-vault` es una CLI *serverless* escrita en Go. Usa **criptografía asimétrica (X25519)** a través de la biblioteca estándar `age`. Cada desarrollador tiene su propia clave privada local. El archivo `.env` se cifra con las claves públicas de todo el equipo y se sube directamente al repositorio Git (`.env-vault/development.enc`).
-
-Nadie comparte contraseñas. El servidor de Git nunca ve el texto plano.
-
----
-
-## 🚀 Instalación
-
-### Instalación rápida
-
-**Linux y macOS:**
-
-```bash
-curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh
-```
-
-**Windows (PowerShell):**
-
-```powershell
-irm https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.ps1 | iex
-```
-
-El script detecta el sistema operativo y la arquitectura, descarga el binario correspondiente desde la página de [Releases](https://github.com/U23205221-S/env-vault/releases), verifica el SHA256 y lo instala en una carpeta estándar del sistema. En Linux y macOS, la ruta es `/usr/local/bin` (con fallback a `~/.local/bin` si no tienes permisos de escritura). En Windows, la ruta es `%LOCALAPPDATA%\Programs\env-vault` y se agrega al `PATH` del usuario automáticamente.
-
-Después de instalar, abre una terminal nueva y ejecuta `env-vault --help` para confirmar la instalación.
-
-**Para una versión específica:**
-
-```bash
-# Linux / macOS
-curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh -s -- v1.2.0
-
-# Windows (PowerShell)
-$env:ENV_VAULT_VERSION = "v1.2.0"; irm https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.ps1 | iex
-```
-
-### Windows: instalación manual (si PowerShell está deshabilitado)
-
-Los binarios se publican en [Releases](https://github.com/U23205221-S/env-vault/releases) como `.zip`. Sigue estos pasos:
-
-1. Descarga el `.zip` correspondiente a tu arquitectura (`windows-amd64` para la mayoría de los equipos, `windows-arm64` para Surface Pro X y máquinas con chip ARM).
-2. Extrae el `.exe` en una carpeta permanente (por ejemplo, `C:\tools\env-vault\`).
-3. Agrega esa carpeta a la variable de entorno `PATH` (Panel de control → Sistema → Configuración avanzada → Variables de entorno).
-4. Abre una terminal nueva y ejecuta `env-vault --help` para confirmar.
-
-**Notas sobre Windows:**
-
-- El hook `pre-commit` requiere Git for Windows, que incluye `sh.exe`. Git usa este intérprete por defecto al ejecutar los hooks.
-- El comando `env-vault run -- <comando>` invoca automáticamente el shell del sistema, por lo que puedes usar builtins como `dir` o `type` directamente, sin prefijar con `cmd /c`.
-
-### Desde el código fuente (avanzado)
-
-Requiere [Go 1.24+](https://golang.org/doc/install).
-
-```bash
-git clone https://github.com/U23205221-S/env-vault.git
-cd env-vault
-go build -o env-vault main.go
-sudo mv env-vault /usr/local/bin/
-```
-
-O usando Make:
-
-```bash
-make build
-sudo mv bin/env-vault /usr/local/bin/
-```
-
-### Verificación de descargas
-
-Cada release publica un archivo `checksums.txt` con los SHA256 de todos los artefactos. El script de instalación lo verifica de forma automática. Si descargas el binario a mano, puedes verificarlo con:
-
-```bash
-sha256sum -c checksums.txt
-```
+Después de instalar, abrí una terminal nueva y verificá con `env-vault --help`.
 
 ---
 
-## 🛠️ Flujo de trabajo del equipo
+## ¿Qué hace?
 
-### 1. El administrador inicializa el proyecto
+`env-vault` cifra tu archivo `.env` con criptografía asimétrica y lo guarda cifrado dentro del propio repositorio Git del proyecto. Cada desarrollador tiene su propio par de claves. El servidor de Git nunca ve el texto plano. Nadie comparte contraseñas.
 
-En la raíz del repositorio Git del proyecto:
+| Sin env-vault | Con env-vault |
+|---|---|
+| ❌ Compartir el `.env` por Slack, email o Drive — queda en texto plano y fuera de control | ✅ Cifrado en el repo, accesible solo para los miembros autorizados |
+| ❌ Vault centralizado o AWS Secrets Manager — infraestructura que mantener y pagar | ✅ Serverless, sin servicios externos, sin costos recurrentes |
+| ❌ 1Password / LastPass — copiar y pegar manualmente cada vez que hay un cambio | ✅ Sincronizado vía Git, igual que cualquier archivo del proyecto |
+| ❌ `.env` commiteado por accidente — un dev sube sus claves a un repo público | ✅ Hook `pre-commit` bloquea automáticamente el commit de `.env` sin cifrar |
+
+---
+
+## 🛡️ Seguridad
+
+`env-vault` está construido sobre primitivas criptográficas estándar y auditables:
+
+- **Cifrado asimétrico X25519**, a través de [`filippo.io/age`](https://github.com/FiloSottile/age) (el estándar moderno de cifrado de archivos).
+- **Las claves privadas nunca salen de tu máquina.** Se generan localmente con `env-vault generate-key` y se guardan en `~/.env-vault/keys/identity.txt` con permisos `0600` (solo vos podés leerlo).
+- **Solo se comparten claves públicas** (`age1...`). Mandarlas por Slack o email es seguro: sirven para cifrar, no para descifrar.
+- **El servidor de Git ve blobs cifrados**, no texto plano. Si alguien clona el repo sin estar autorizado, los archivos `.enc` son inútiles sin la clave privada.
+- **Revocación granular:** quitar una clave pública del manifiesto y volver a hacer `push` invalida el acceso a ese desarrollador para todos los cambios futuros. No hay forma de "re-abrir" un `.env` ya cifrado con la clave revocada.
+- **Hook `pre-commit` instalado automáticamente** durante `env-vault init`. Bloquea `git commit` de cualquier `.env` en texto plano, incluso si el dev tiene prisa y se olvida.
+
+El modelo de amenaza que cubre: robo accidental del repo (GitHub hackeado, dev que se va con copia, repo público por error). **No** cubre: una máquina comprometida con la clave privada adentro — para eso, usá `env-vault run` y nunca escribas el `.env` en disco.
+
+---
+
+## Flujo de uso
+
+### 1. El admin inicializa el vault en el proyecto
+
+En la raíz del repositorio Git del proyecto del equipo:
 
 ```bash
 env-vault init
 ```
 
-Esto crea la carpeta `.env-vault/`, el archivo `manifest.json` y un hook de Git (`pre-commit`) que bloquea la subida accidental de un `.env` en texto plano.
+Esto crea la carpeta `.env-vault/`, el archivo `manifest.json` (lista de claves públicas autorizadas) y un hook `pre-commit` que bloquea subir un `.env` en texto plano.
 
-### 2. El nuevo desarrollador genera sus claves
-
-En la máquina del desarrollador:
+### 2. Cada desarrollador genera su par de claves
 
 ```bash
 env-vault generate-key
 ```
 
-Esto guarda una clave privada en `~/.env-vault/keys/identity.txt` y muestra por consola una clave pública (`age1...`). El desarrollador envía esta clave pública por Slack al administrador (es seguro hacerlo porque la clave es pública).
+Guarda una clave privada local y muestra por consola tu clave pública (`age1...`). Compartís la pública con el admin por el canal que prefieras — no es un secreto.
 
-### 3. El administrador autoriza al desarrollador
+### 3. El admin te autoriza
 
 ```bash
-env-vault add-user age1...clave-del-desarrollador...
+env-vault add-user age1...clave-que-te-mandaron...
 ```
 
-### 4. Empaquetar y cifrar (push)
+Tu clave pública queda en el manifiesto. A partir de ahora podés descifrar los archivos del equipo.
 
-Cuando alguien modifica el `.env` local y quiere compartirlo con el equipo:
+### 4. Alguien modifica el `.env` y lo comparte con el equipo
 
 ```bash
 env-vault push
@@ -131,21 +84,17 @@ git commit -m "chore: actualiza variables de entorno"
 git push
 ```
 
-El archivo se cifra para todos los usuarios del manifiesto.
+El archivo se cifra para todos los del manifiesto y se sube al repo. El servidor de Git ve bytes cifrados.
 
-### 5. Recuperar y descifrar (pull)
-
-Cuando un desarrollador hace `git pull` y ve cambios en las variables:
+### 5. Después de hacer `git pull`, descifrá el `.env` actualizado
 
 ```bash
 env-vault pull
 ```
 
-La herramienta usa la clave privada local del desarrollador para descifrar el archivo y crear el `.env` físico.
+Tu clave privada local descifra el archivo y crea el `.env` físico en el proyecto.
 
-### 6. Modo "Zero Trust" (run)
-
-Si no quieres que el `.env` toque el disco duro, puedes inyectar las variables directamente en la memoria del proceso:
+### 6. Para ejecutar el proyecto sin que el `.env` toque el disco
 
 ```bash
 env-vault run -- npm run dev
@@ -153,29 +102,57 @@ env-vault run -- npm run dev
 env-vault run -- go run main.go
 ```
 
-En Windows, este comando invoca el shell del sistema de forma automática, por lo que puedes usar builtins como `dir` sin prefijar con `cmd /c`.
+Las variables se inyectan directamente en la memoria del proceso. El `.env` no se escribe a disco.
 
-### 7. Revocar accesos (offboarding)
-
-Si un desarrollador deja el equipo:
+### 7. Para revocar el acceso a alguien que dejó el equipo
 
 ```bash
-env-vault remove-user age1...clave...
+env-vault remove-user age1...clave-del-ex-dev...
 env-vault push
 ```
 
-Su acceso queda revocado de inmediato para todos los cambios futuros.
+La próxima vez que se cifre el `.env`, esa persona ya no podrá descifrarlo. Los `.env` que vio antes siguen siendo los mismos (no se re-cifra retroactivamente) — para mayor seguridad, rotá las credenciales.
 
 ---
 
-## 🛡️ Seguridad
+## 📋 Comandos disponibles
 
-- **Algoritmo:** X25519 (curva elíptica).
-- **Motor:** [filippo.io/age](https://github.com/FiloSottile/age), estándar moderno de cifrado asimétrico.
-- **Protección de fugas:** el hook `pre-commit` impide que alguien haga `git commit` de un archivo `.env` sin cifrar por accidente.
+| Comando | Para qué sirve |
+|---|---|
+| `env-vault init` | Inicializa el vault en el proyecto (una vez por proyecto) |
+| `env-vault generate-key` | Genera tu par de claves local (una vez por máquina) |
+| `env-vault add-user <pubkey>` | Agrega una clave pública al manifiesto (lo corre el admin) |
+| `env-vault remove-user <pubkey>` | Quita una clave pública del manifiesto |
+| `env-vault push` | Cifra el `.env` local para todos los del manifiesto |
+| `env-vault pull` | Descifra el archivo del equipo y crea el `.env` local |
+| `env-vault run -- <cmd>` | Descifra en memoria y ejecuta el comando con las variables inyectadas |
 
 ---
 
-## 🧪 Plataformas soportadas
+## 🖥️ Notas por plataforma
 
-Probado en Windows, macOS, Fedora y Arch Linux. La herramienta funciona en cualquier distribución moderna con Go 1.24 o superior.
+### Todas las plataformas
+
+- **Después de instalar, abrí una terminal nueva** antes de ejecutar `env-vault`. El script de instalación agrega el binario al `PATH`, pero los terminales ya abiertos no recargan el `PATH` automáticamente.
+
+### macOS — Gatekeeper la primera vez
+
+Los binarios no están firmados por Apple (no compensa pagar la cuenta de developer solo para una CLI open source). La primera vez que ejecutes `env-vault`, macOS lo va a bloquear. Solución, una sola vez por máquina:
+
+```bash
+xattr -d com.apple.quarantine "$(which env-vault)"
+```
+
+O graficamente: clic derecho sobre el binario → Abrir → confirmar en el diálogo.
+
+### Windows — Hook `pre-commit` necesita Git for Windows
+
+El hook `pre-commit` es un script de shell (convención de Git). Git for Windows incluye `sh.exe` y lo usa para ejecutarlo. Si tu Git viene de otra fuente, instalá [Git for Windows](https://git-scm.com/download/win) (es el estándar en Windows).
+
+---
+
+## ✅ Plataformas soportadas
+
+- **Linux:** Fedora, Arch, Ubuntu, Debian y cualquier distro moderna con `bash`, `curl`, `tar` y `sha256sum` (casi todas).
+- **macOS:** Intel y Apple Silicon (M1, M2, M3, M4).
+- **Windows:** 10 y 11 con PowerShell 5.1 o superior (ya viene preinstalado en ambos).
