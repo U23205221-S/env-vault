@@ -1,0 +1,45 @@
+version: 2
+project_name: env-vault
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - main: .
+    binary: env-vault
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+      - "-ldflags=-s -w"
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore: []
+archives:
+  - format_overrides:
+      - goos: windows
+        formats: ["zip"]
+    files:
+      - README.md
+      - LICENSE*
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+changelog:
+  use: git
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^feat"
+      order: 0
+    - title: Bug fixes
+      regexp: "^fix"
+      order: 1
+    - title: Others
+      order: 999
