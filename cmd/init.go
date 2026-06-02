@@ -49,18 +49,8 @@ var initCmd = &cobra.Command{
 		}
 
 		preCommitFile := filepath.Join(hooksDir, "pre-commit")
-		hookScript := `#!/bin/sh
-# Hook generado por env-vault
-# Evita hacer commit de un archivo llamado .env (en texto plano)
+		hookScript := "#!/bin/sh\nexec env-vault hook pre-commit\n"
 
-if git diff --cached --name-only | grep -E '(^|/)\.env$'; then
-  echo "🚨 ERROR: Estás intentando commitear un archivo .env en texto plano."
-  echo "🚨 Usa 'env-vault push' para cifrarlo y agregarlo al vault."
-  echo "🚨 Abortando commit..."
-  exit 1
-fi
-`
-		
 		// Revisar si ya existe el hook y si ya tiene nuestra protección
 		hookContent, err := os.ReadFile(preCommitFile)
 		if err == nil {
@@ -95,8 +85,9 @@ fi
 
 func containsEnvVaultHook(content string) bool {
 	// Simple chequeo para ver si ya inyectamos el código de env-vault antes
-	return len(content) > 0 && ( /* un check rústico */ len(content) > 0 && 
-		(stringContains(content, "env-vault push") || stringContains(content, "Estás intentando commitear un archivo .env")))
+	return len(content) > 0 && (stringContains(content, "env-vault hook pre-commit") ||
+		stringContains(content, "env-vault push") ||
+		stringContains(content, "Estás intentando commitear un archivo .env"))
 }
 
 func stringContains(s, substr string) bool {

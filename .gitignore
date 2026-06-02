@@ -16,11 +16,17 @@ env-vault-*
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-# env-vault configuration local
-.env-vault/keys/
-.env-vault/development.enc
-.env-vault/production.enc
+# env-vault runtime artifacts
+# This repo is the tool itself. Each team's vault data (manifest.json,
+# *.enc, keys) lives in THEIR project repo, never here. Ignore everything
+# produced by 'env-vault init/push/pull' so a stray 'git add .env-vault/'
+# in this repo is a no-op.
+.env-vault/*
 
 # IDEA
 .vscode/
 .idea/
+# Local Pi runtime state
+.atl/
+.pi/
+openspec/
