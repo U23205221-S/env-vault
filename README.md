@@ -22,21 +22,35 @@ Nadie comparte contraseñas. El servidor de Git nunca ve el texto plano.
 
 ## 🚀 Instalación
 
-### Instalación rápida (Linux y macOS)
+### Instalación rápida
+
+**Linux y macOS:**
 
 ```bash
 curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh
 ```
 
-El script detecta el sistema operativo y la arquitectura, descarga el binario correspondiente desde la página de [Releases](https://github.com/U23205221-S/env-vault/releases), verifica el SHA256 y lo instala en `/usr/local/bin` (o en `~/.local/bin` si no tienes permisos de escritura en `/usr/local/bin`).
+**Windows (PowerShell):**
 
-Para instalar una versión específica:
-
-```bash
-curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh -s -- v1.1.1
+```powershell
+irm https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.ps1 | iex
 ```
 
-### Windows
+El script detecta el sistema operativo y la arquitectura, descarga el binario correspondiente desde la página de [Releases](https://github.com/U23205221-S/env-vault/releases), verifica el SHA256 y lo instala en una carpeta estándar del sistema. En Linux y macOS, la ruta es `/usr/local/bin` (con fallback a `~/.local/bin` si no tienes permisos de escritura). En Windows, la ruta es `%LOCALAPPDATA%\Programs\env-vault` y se agrega al `PATH` del usuario automáticamente.
+
+Después de instalar, abre una terminal nueva y ejecuta `env-vault --help` para confirmar la instalación.
+
+**Para una versión específica:**
+
+```bash
+# Linux / macOS
+curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh -s -- v1.2.0
+
+# Windows (PowerShell)
+$env:ENV_VAULT_VERSION = "v1.2.0"; irm https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.ps1 | iex
+```
+
+### Windows: instalación manual (si PowerShell está deshabilitado)
 
 Los binarios se publican en [Releases](https://github.com/U23205221-S/env-vault/releases) como `.zip`. Sigue estos pasos:
 
