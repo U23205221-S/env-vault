@@ -8,14 +8,21 @@
 
 Un solo comando por plataforma. Sin dependencias, sin compiladores, sin Docker.
 
-| Plataforma | Comando |
-|---|---|
-| **Fedora, Arch, Ubuntu, Debian, macOS** | `curl -sSf https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh \| sh` |
-| **Windows (PowerShell)** | `irm https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.ps1 \| iex` |
+```bash
+# Linux, macOS, WSL — Fedora, Arch, Ubuntu, Debian, etc.
+curl -fsSL https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.sh | sh
+```
 
-Para una versión específica: agregá `v1.2.0` al final del comando en Linux/macOS, o usá `$env:ENV_VAULT_VERSION = "v1.2.0"` antes del comando en Windows.
+```powershell
+# Windows (PowerShell 5.1+, ya viene en Windows 10/11)
+irm https://raw.githubusercontent.com/U23205221-S/env-vault/main/install.ps1 | iex
+```
+
+Para una versión específica: agregá `v1.3.0` al final del comando en Linux/macOS, o usá `$env:ENV_VAULT_VERSION = "v1.3.0"` antes del comando en Windows.
 
 Después de instalar, abrí una terminal nueva y verificá con `env-vault --help`.
+
+![env-vault --help](docs/help.png)
 
 ---
 
