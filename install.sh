@@ -66,8 +66,17 @@ if [ -n "$version_input" ]; then
   version="${version_input#v}"
 else
   info "Resolviendo versión latest..."
-  tag_name="$(curl -sSfL "https://api.github.com/repos/U23205221-S/env-vault/releases/latest" | awk -F'"' '/"tag_name"/ {print $4; exit}')"
-  [ -n "$tag_name" ] || die "No se pudo resolver la versión latest."
+  # Bajamos el JSON a un archivo temporal porque curl con `-f` reporta
+  # "Failure writing output" cuando awk hace `exit` antes de consumir
+  # todo el body. Con un archivo destino, ese caso no ocurre.
+  tmp_release_json="$(mktemp)"
+  if ! curl -sSfL "https://api.github.com/repos/U23205221-S/env-vault/releases/latest" -o "$tmp_release_json"; then
+    rm -f "$tmp_release_json"
+    die "No se pudo resolver la versión latest desde la API de GitHub."
+  fi
+  tag_name="$(awk -F'"' '/"tag_name"/ {print $4; exit}' "$tmp_release_json")"
+  rm -f "$tmp_release_json"
+  [ -n "$tag_name" ] || die "La respuesta de la API no contiene tag_name."
   version="${tag_name#v}"
 fi
 
